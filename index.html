@@ -1,0 +1,82 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#000000" />
+<title>Magic Camera</title>
+<link rel="stylesheet" href="./css/style.css" />
+
+<!--
+  Magic Camera — MVP (Fases 1–5)
+  Cámara + detección de carta + 4 esquinas + tracking visual + card lost.
+  Todo el procesamiento ocurre en el dispositivo. No se sube vídeo a ningún servidor.
+-->
+
+<!-- OpenCV.js 4.9.0 va vendorizado en ./js/vendor/opencv.js (sin CDN en runtime).
+     cv.js lo inyecta de forma perezosa al pulsar START. -->
+
+<div id="app">
+
+  <!-- Pantalla inicial -->
+  <section id="start-screen" class="screen">
+    <div class="start-inner">
+      <h1 class="logo">MAGIC<span>CAMERA</span></h1>
+      <button id="btn-start" class="btn-primary">START CAMERA</button>
+      <p id="start-hint" class="hint">Safari · iPhone · HTTPS · cámara trasera</p>
+      <p id="start-error" class="error" hidden></p>
+      <p id="cv-status" class="hint small">Cargando motor de visión…</p>
+    </div>
+  </section>
+
+  <!-- Escena de cámara -->
+  <section id="camera-screen" class="screen" hidden>
+    <video id="video" playsinline muted autoplay></video>
+    <canvas id="overlay"></canvas>
+
+    <!-- Estado grande (sólo fuera de performance mode) -->
+    <div id="status-pill" class="status-pill">SEARCHING</div>
+
+    <!-- Controles discretos -->
+    <div id="controls" class="controls">
+      <button id="btn-reset" class="btn-ghost">RESET</button>
+      <button id="btn-debug" class="btn-ghost">DEBUG</button>
+      <button id="btn-perf" class="btn-ghost">PERF</button>
+    </div>
+
+    <!-- Panel DEBUG -->
+    <div id="debug-panel" class="debug-panel" hidden>
+      <div class="debug-hud">
+        <div><span>FPS</span><b id="hud-fps">0</b></div>
+        <div><span>CV ms</span><b id="hud-cvms">0</b></div>
+        <div><span>PROC</span><b id="hud-proc">–</b></div>
+        <div><span>CARD</span><b id="hud-card">LOST</b></div>
+        <div><span>TRACK</span><b id="hud-track">LOST</b></div>
+        <div><span>CONF</span><b id="hud-conf">0.00</b></div>
+        <div><span>STATE</span><b id="hud-state">IDLE</b></div>
+        <div><span>PTS</span><b id="hud-pts">0</b></div>
+        <div><span>NCC</span><b id="hud-ncc">0.00</b></div>
+        <div><span>INLIER</span><b id="hud-inlier">0.00</b></div>
+        <div><span>ASPECT</span><b id="hud-aspect">0.00</b></div>
+        <div><span>EDGES</span><b id="hud-edges">0.00</b></div>
+      </div>
+      <div class="debug-corners">
+        <div>TL <b id="hud-tl">–</b></div>
+        <div>TR <b id="hud-tr">–</b></div>
+        <div>BR <b id="hud-br">–</b></div>
+        <div>BL <b id="hud-bl">–</b></div>
+      </div>
+      <div class="debug-toggles">
+        <label><input type="checkbox" id="t-corners" checked> Show corners</label>
+        <label><input type="checkbox" id="t-quad" checked> Show quadrilateral</label>
+        <label><input type="checkbox" id="t-points" checked> Show tracking points</label>
+        <label><input type="checkbox" id="t-fps" checked> Show FPS</label>
+        <label><input type="checkbox" id="t-conf" checked> Show confidence</label>
+        <label><input type="checkbox" id="t-homography"> Show homography</label>
+        <label><input type="checkbox" id="t-contour"> Show detected contour</label>
+        <label><input type="checkbox" id="t-faceguard"> Face guard (Haar)</label>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="module" src="./js/app.js"></script>

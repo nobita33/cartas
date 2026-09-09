@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" width="250" height="350">
+  <!-- Provisional (Fase 7 lo sustituye por una textura de cartulina completa). Diseño propio. -->
+  <defs>
+    <linearGradient id="stock" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fefefc"/>
+      <stop offset="1" stop-color="#f1efe6"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.03 0"/>
+      <feComposite operator="over" in2="SourceGraphic"/></filter>
+  </defs>
+  <g filter="url(#grain)">
+    <rect x="4" y="4" width="242" height="342" rx="16" ry="16" fill="url(#stock)" stroke="#d8d5c8" stroke-width="2"/>
+    <rect x="16" y="16" width="218" height="318" rx="10" ry="10" fill="none" stroke="#111" stroke-width="1.5" opacity="0.55"/>
+  </g>
+  <g fill="#111">
+    <text x="30" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" text-anchor="middle">A</text>
+    <path d="M30 52 c-9 12 -22 20 -22 33 c0 9 7 15 15 15 c4 0 7 -2 7 -2 c-1 6 -4 10 -8 13 h16 c-4 -3 -7 -7 -8 -13 c0 0 3 2 7 2 c8 0 15 -6 15 -15 c0 -13 -13 -21 -22 -33 z" transform="scale(0.5) translate(30 66)"/>
+    <g transform="rotate(180 125 175)">
+      <text x="30" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" text-anchor="middle">A</text>
+      <path d="M30 52 c-9 12 -22 20 -22 33 c0 9 7 15 15 15 c4 0 7 -2 7 -2 c-1 6 -4 10 -8 13 h16 c-4 -3 -7 -7 -8 -13 c0 0 3 2 7 2 c8 0 15 -6 15 -15 c0 -13 -13 -21 -22 -33 z" transform="scale(0.5) translate(30 66)"/>
+    </g>
+    <path d="M125 120 c-30 40 -74 66 -74 110 c0 30 23 50 50 50 c14 0 24 -7 24 -7 c-4 20 -13 33 -27 43 h54 c-14 -10 -23 -23 -27 -43 c0 0 10 7 24 7 c27 0 50 -20 50 -50 c0 -44 -44 -70 -74 -110 z"/>
+  </g>
+</svg>

@@ -1,0 +1,179 @@
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --accent: #16f0b8;
+  --danger: #ff4d5e;
+  --muted: rgba(255, 255, 255, 0.55);
+  --panel: rgba(0, 0, 0, 0.6);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app { position: fixed; inset: 0; }
+.screen { position: absolute; inset: 0; }
+[hidden] { display: none !important; }
+
+/* ---------- Start screen ---------- */
+#start-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #141414, #000 70%);
+}
+.start-inner { text-align: center; padding: 24px; }
+.logo {
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 30px;
+  line-height: 1.1;
+  margin-bottom: 32px;
+}
+.logo span { display: block; color: var(--accent); }
+
+.btn-primary {
+  appearance: none;
+  border: 0;
+  background: var(--fg);
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 15px;
+  padding: 16px 30px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.btn-primary:active { transform: scale(0.97); }
+
+.hint { color: var(--muted); margin-top: 18px; font-size: 12px; letter-spacing: 0.08em; }
+.hint.small { margin-top: 8px; opacity: 0.7; }
+.error {
+  color: var(--danger);
+  margin-top: 16px;
+  font-size: 13px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Camera screen ---------- */
+#video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* rellena sin deformar; el mapeo del overlay usa la misma matemática "cover" */
+  background: #000;
+}
+#overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.status-pill {
+  position: absolute;
+  top: calc(var(--safe-top) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+.status-pill.tracking { color: #000; background: var(--accent); }
+.status-pill.lost { color: #fff; background: var(--danger); }
+.status-pill.candidate { color: #000; background: #ffd23f; }
+
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + 16px);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.btn-ghost {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--fg);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.btn-ghost:active { transform: scale(0.96); }
+.btn-ghost.on { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* ---------- Debug panel ---------- */
+.debug-panel {
+  position: absolute;
+  top: calc(var(--safe-top) + 52px);
+  left: 10px;
+  right: 10px;
+  max-width: 420px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.debug-hud {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px 10px;
+}
+.debug-hud div { display: flex; flex-direction: column; }
+.debug-hud span { color: var(--muted); font-size: 9px; letter-spacing: 0.1em; }
+.debug-hud b { font-size: 13px; font-variant-numeric: tabular-nums; }
+.debug-corners {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 10px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.debug-corners b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.debug-toggles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 10px;
+  margin-top: 12px;
+}
+.debug-toggles label { display: flex; align-items: center; gap: 6px; color: var(--fg); }
+.debug-toggles input { width: 15px; height: 15px; accent-color: var(--accent); }
+
+/* ---------- Performance mode ---------- */
+body.perf .status-pill,
+body.perf .controls,
+body.perf .debug-panel { display: none !important; }
+body.perf #overlay.perf-hide-debug { /* overlay sigue dibujando sólo el efecto */ }

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" width="250" height="350">
+  <!-- Provisional (Fase 7 lo sustituye por una textura de cartulina completa). Diseño propio. -->
+  <defs>
+    <linearGradient id="stock9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fefefc"/>
+      <stop offset="1" stop-color="#f1efe6"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="242" height="342" rx="16" ry="16" fill="url(#stock9)" stroke="#d8d5c8" stroke-width="2"/>
+  <rect x="16" y="16" width="218" height="318" rx="10" ry="10" fill="none" stroke="#b3271e" stroke-width="1.5" opacity="0.5"/>
+  <g fill="#c0271d" font-family="Georgia, 'Times New Roman', serif" font-weight="700">
+    <text x="30" y="46" font-size="32" text-anchor="middle">9</text>
+    <path id="h" d="M30 54 c-6 -10 -22 -10 -22 4 c0 12 22 22 22 22 c0 0 22 -10 22 -22 c0 -14 -16 -14 -22 -4 z" transform="scale(0.62) translate(19 42)"/>
+    <g transform="rotate(180 125 175)">
+      <text x="30" y="46" font-size="32" text-anchor="middle">9</text>
+      <path d="M30 54 c-6 -10 -22 -10 -22 4 c0 12 22 22 22 22 c0 0 22 -10 22 -22 c0 -14 -16 -14 -22 -4 z" transform="scale(0.62) translate(19 42)"/>
+    </g>
+  </g>
+  <g fill="#c0271d">
+    <!-- 9 corazones: 4 + 1 + 4 -->
+    <g id="pip"><path d="M0 6 c-9 -15 -33 -15 -33 6 c0 18 33 33 33 33 c0 0 33 -15 33 -33 c0 -21 -24 -21 -33 -6 z"/></g>
+    <use href="#pip" transform="translate(78 96)"/>
+    <use href="#pip" transform="translate(172 96)"/>
+    <use href="#pip" transform="translate(78 156)"/>
+    <use href="#pip" transform="translate(172 156)"/>
+    <use href="#pip" transform="translate(125 128)"/>
+    <use href="#pip" transform="translate(78 216)"/>
+    <use href="#pip" transform="translate(172 216)"/>
+    <use href="#pip" transform="translate(78 276)"/>
+    <use href="#pip" transform="translate(172 276)"/>
+  </g>
+</svg>
