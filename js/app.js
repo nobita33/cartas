@@ -27,7 +27,9 @@ const dom = {
   cameraScreen: $("camera-screen"),
   btnStart: $("btn-start"),
   startError: $("start-error"),
+  startHint: $("start-hint"),
   cvStatus: $("cv-status"),
+  cvLoading: $("cv-loading"),
   video: $("video"),
   overlay: $("overlay"),
   statusPill: $("status-pill"),
@@ -69,20 +71,46 @@ let lostFlashUntil = 0;
 let faceGuardBusy = false;
 
 // ---------------- arranque ----------------
-dom.cvStatus.textContent = "";
-cvReady().then(() => {
-  cvOk = true;
-  dom.cvStatus.textContent = "Motor de visión listo";
-}).catch(() => {
-  dom.cvStatus.textContent = "No se pudo cargar OpenCV.js (revisa la conexión)";
-});
+// OpenCV.js NO se carga aquí. Es ~10 MB y compilar su WASM bloquea el hilo
+// principal varios segundos en un móvil ("web congelada"). Se carga DESPUÉS de
+// que la cámara esté visible (ver startCamera): la Fase 1 no necesita OpenCV.
+dom.cvStatus.textContent = NO_CV ? "OpenCV desactivado (?nocv)" : "";
 
-// Precarga OpenCV en tiempo ocioso para que suela estar listo al pulsar START,
-// sin bloquear el primer pintado.
-const preloadCV = () => { dom.cvStatus.textContent = "Cargando motor de visión…"; loadOpenCV(); };
-if (NO_CV) dom.cvStatus.textContent = "OpenCV desactivado (?nocv)";
-else if ("requestIdleCallback" in window) requestIdleCallback(preloadCV, { timeout: 2500 });
-else setTimeout(preloadCV, 800);
+function beginVisionLoad() {
+  if (NO_CV || cvOk) return;
+  if (dom.cvLoading) dom.cvLoading.hidden = false;
+  loadOpenCV();
+  cvReady().then(() => {
+    cvOk = true;
+    if (dom.cvLoading) dom.cvLoading.hidden = true;
+  }).catch(() => {
+    if (dom.cvLoading) dom.cvLoading.textContent = "Visión no disponible";
+  });
+}
+
+// Diagnóstico visible en la pantalla inicial (para saber por qué no abre la cámara).
+(function showDiag() {
+  const secure = window.isSecureContext;
+  const hasGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  const ua = navigator.userAgent;
+  const inApp = /(FBAN|FBAV|Instagram|Line|Twitter|TikTok|Snapchat|GSA)/i.test(ua);
+  const isSafari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(ua);
+  const lines = [
+    `origen: ${location.protocol}//${location.host}`,
+    `secureContext (HTTPS): ${secure ? "sí" : "NO"}`,
+    `getUserMedia: ${hasGUM ? "sí" : "NO"}`,
+    inApp ? "⚠ navegador embebido en otra app: usa Safari" : (isSafari ? "navegador: Safari ✓" : "navegador: no-Safari"),
+  ];
+  dom.startHint.textContent = lines.join("  ·  ");
+  if (!secure || !hasGUM || inApp) {
+    dom.startError.hidden = false;
+    dom.startError.textContent = !secure
+      ? "Esta página NO está en HTTPS. La cámara no funcionará. Abre la URL https://…vercel.app."
+      : inApp
+        ? "Estás en un navegador dentro de otra app. Ábrelo en Safari."
+        : "getUserMedia no disponible en este navegador.";
+  }
+})();
 
 dom.btnStart.addEventListener("click", startCamera, { once: false });
 dom.btnReset.addEventListener("click", hardReset);
@@ -130,7 +158,6 @@ async function startCamera() {
   }
   dom.btnStart.disabled = true;
   dom.btnStart.textContent = "ABRIENDO…";
-  if (!NO_CV) loadOpenCV(); // asegura que el motor de visión está cargándose (idempotente)
   try {
     await camera.start();
   } catch (e) {
@@ -146,22 +173,48 @@ async function startCamera() {
   running = true;
   machine.set(S.SEARCHING);
   scheduleFrame();
+
+  // Cámara ya visible: ahora carga OpenCV en segundo plano. La detección
+  // arranca sola cuando cvOk pasa a true. Un pequeño retardo deja pintar
+  // los primeros frames de vídeo antes del hitch de compilado del WASM.
+  setTimeout(beginVisionLoad, 400);
 }
 
 function explainCameraError(e) {
-  switch (e && e.name) {
+  const name = (e && e.name) || "Error";
+  const msg = (e && e.message) || "";
+  let head;
+  switch (name) {
+    case "InsecureContextError":
+      head = "NO es HTTPS. La cámara sólo funciona en https:// o localhost. " +
+        "Abre la URL de Vercel (https://…vercel.app), no una IP http://.";
+      break;
+    case "UnsupportedError":
+      head = "Este navegador no expone getUserMedia. Usa Safari de verdad, " +
+        "no un navegador dentro de otra app (Instagram, Telegram, Notas…).";
+      break;
     case "NotAllowedError":
     case "SecurityError":
-      return "Permiso de cámara denegado. Ajustes ▸ Safari ▸ Cámara ▸ Permitir, y recarga.";
+      head = "Permiso de cámara denegado. Ajustes ▸ Safari ▸ Cámara ▸ Permitir " +
+        "(o icono 'aA' de la barra ▸ Ajustes del sitio web ▸ Cámara), y recarga.";
+      break;
     case "NotFoundError":
-      return "No se encontró ninguna cámara en el dispositivo.";
+      head = "No se encontró ninguna cámara.";
+      break;
     case "NotReadableError":
-      return "La cámara está en uso por otra app. Ciérrala y reintenta.";
+      head = "La cámara está en uso por otra app. Ciérrala y reintenta.";
+      break;
     case "OverconstrainedError":
-      return "La cámara no admite la configuración pedida. Reintenta.";
+      head = "La cámara no admite la configuración pedida.";
+      break;
+    case "TimeoutError":
+      head = "La cámara no respondió. Si no salió el diálogo de permiso: " +
+        "recarga; si sale y no pasa nada, revisa Ajustes ▸ Safari ▸ Cámara.";
+      break;
     default:
-      return "No se pudo abrir la cámara. Requiere HTTPS y Safari real (no navegador dentro de otra app).";
+      head = "No se pudo abrir la cámara. Requiere HTTPS y Safari real.";
   }
+  return `${head}\n[${name}] ${msg}\norigen: ${location.protocol}//${location.host} · secureContext: ${window.isSecureContext}`;
 }
 
 // ---------------- layout ----------------
@@ -195,6 +248,13 @@ function frame(now) {
   if (!camera.procW) {
     const { w, h } = camera.setProcessingSize(perf.procMaxSide);
     overlay.setSource(camera.intrinsicWidth, camera.intrinsicHeight, w, h);
+  }
+
+  // Sin OpenCV todavía: sólo cámara (Fase 1). No se muestrea el frame.
+  if (!cvOk) {
+    drawOverlay({ quad: null, contour: null, points: null, confidence: 0 });
+    if (!dom.debugPanel.hidden) updateHUD({ quad: null, confidence: 0 });
+    return;
   }
 
   const img = camera.grab();
