@@ -64,10 +64,13 @@ body {
 .error {
   color: var(--danger);
   margin-top: 16px;
-  font-size: 13px;
-  max-width: 320px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 340px;
   margin-left: auto;
   margin-right: auto;
+  white-space: pre-line;
+  word-break: break-word;
 }
 
 /* ---------- Camera screen ---------- */
@@ -102,6 +105,23 @@ body {
   letter-spacing: 0.16em;
   color: var(--muted);
 }
+.cv-loading {
+  position: absolute;
+  top: calc(var(--safe-top) + 46px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ffd23f;
+}
+body.perf .cv-loading { display: none !important; }
+
 .status-pill.tracking { color: #000; background: var(--accent); }
 .status-pill.lost { color: #fff; background: var(--danger); }
 .status-pill.candidate { color: #000; background: #ffd23f; }
